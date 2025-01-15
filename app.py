@@ -1,74 +1,149 @@
-import streamlit as st
-import numpy as np
 import pickle
+import streamlit as st
+from streamlit_option_menu import option_menu
 
-# Page configuration
-st.set_page_config(page_title="Health Prediction App", page_icon="🏦", layout="centered")
 
-# App title
-st.title("Health Prediction App")
-st.write("This app predicts the likelihood of **Diabetes** and **Heart Diseases** based on the input data.")
+# loading the saved models
 
-# Load models
-# def load_model(file_path):
-#     with open(file_path, 'wb') as file:
-#         return pickle.load(file)
+diabetes_model = pickle.load(open('classifier.sav', 'rb'))
 
-# diabetes_model_path = "classifier.pkl"
-# heart_model_path = "model.pkl"
+heart_disease_model = pickle.load(open('model.sav', 'rb'))
 
-# diabetes_model = load_model('classifier.pkl')
-# heart_model = load_model('model.pkl')
 
-pickle.load(open('classifier.sav','rb'))
-pickle.load(open('model.sav','rb'))
-# Tabs for different predictions
-diabetes_tab, heart_tab = st.tabs(["Diabetes Prediction", "Heart Disease Prediction"])
 
-with diabetes_tab:
-    st.header("Diabetes Prediction")
+
+
+# sidebar for navigation
+with st.sidebar:
     
-    # Inputs for diabetes prediction
-    pregnancies = st.number_input("Number of Pregnancies", min_value=0, max_value=20, value=1)
-    glucose = st.number_input("Glucose Level", min_value=0, max_value=300, value=120)
-    blood_pressure = st.number_input("Blood Pressure (mm Hg)", min_value=0, max_value=200, value=80)
-    skin_thickness = st.number_input("Skin Thickness (mm)", min_value=0, max_value=100, value=20)
-    insulin = st.number_input("Insulin Level (mu U/ml)", min_value=0, max_value=900, value=80)
-    bmi = st.number_input("BMI (kg/m^2)", min_value=0.0, max_value=70.0, value=25.0, format="%.1f")
-    dpf = st.number_input("Diabetes Pedigree Function", min_value=0.0, max_value=2.5, value=0.5, format="%.2f")
-    age = st.number_input("Age", min_value=0, max_value=120, value=30)
+    selected = option_menu('Multiple Disease Prediction System',
+                          
+                          ['Diabetes Prediction',
+                           'Heart Disease Prediction',
+                           'Parkinsons Prediction'],
+                          icons=['activity','heart','person'],
+                          default_index=0)
+    
+    
+# Diabetes Prediction Page
+if (selected == 'Diabetes Prediction'):
+    
+    # page title
+    st.title('Diabetes Prediction using ML')
+    
+    
+    # getting the input data from the user
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        Pregnancies = st.text_input('Number of Pregnancies')
+        
+    with col2:
+        Glucose = st.text_input('Glucose Level')
+    
+    with col3:
+        BloodPressure = st.text_input('Blood Pressure value')
+    
+    with col1:
+        SkinThickness = st.text_input('Skin Thickness value')
+    
+    with col2:
+        Insulin = st.text_input('Insulin Level')
+    
+    with col3:
+        BMI = st.text_input('BMI value')
+    
+    with col1:
+        DiabetesPedigreeFunction = st.text_input('Diabetes Pedigree Function value')
+    
+    with col2:
+        Age = st.text_input('Age of the Person')
+    
+    
+    # code for Prediction
+    diab_diagnosis = ''
+    
+    # creating a button for Prediction
+    
+    if st.button('Diabetes Test Result'):
+        diab_prediction = diabetes_model.predict([[Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age]])
+        
+        if (diab_prediction[0] == 1):
+          diab_diagnosis = 'The person is diabetic'
+        else:
+          diab_diagnosis = 'The person is not diabetic'
+        
+    st.success(diab_diagnosis)
 
-    # Make prediction
-    if st.button("Predict Diabetes"):
-        diabetes_input = np.array([pregnancies, glucose, blood_pressure, skin_thickness, insulin, bmi, dpf, age]).reshape(1, -1)
-        diabetes_prediction = diabetes_model.predict(diabetes_input)[0]
-        result = "Positive" if diabetes_prediction == 1 else "Negative"
-        st.success(f"The prediction for Diabetes is: {result}")
 
-with heart_tab:
-    st.header("Heart Disease Prediction")
 
-    # Inputs for heart disease prediction
-    age = st.number_input("Age", min_value=0, max_value=120, value=40)
-    cp = st.selectbox("Chest Pain Type (0-3)", options=[0, 1, 2, 3], index=1)
-    trestbps = st.number_input("Resting Blood Pressure (mm Hg)", min_value=0, max_value=250, value=120)
-    chol = st.number_input("Serum Cholesterol (mg/dl)", min_value=0, max_value=600, value=200)
-    fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dl (1 = True; 0 = False)", options=[0, 1], index=0)
-    restecg = st.selectbox("Resting Electrocardiographic Results (0-2)", options=[0, 1, 2], index=1)
-    thalach = st.number_input("Maximum Heart Rate Achieved", min_value=0, max_value=250, value=150)
-    exang = st.selectbox("Exercise Induced Angina (1 = Yes; 0 = No)", options=[0, 1], index=0)
-    oldpeak = st.number_input("ST Depression Induced by Exercise", min_value=0.0, max_value=10.0, value=1.0, format="%.1f")
-    slope = st.selectbox("Slope of the Peak Exercise ST Segment (0-2)", options=[0, 1, 2], index=1)
-    ca = st.selectbox("Number of Major Vessels Colored by Fluoroscopy (0-4)", options=[0, 1, 2, 3, 4], index=0)
-    thal = st.selectbox("Thalassemia (1 = Normal; 2 = Fixed Defect; 3 = Reversible Defect)", options=[1, 2, 3], index=1)
 
-    # Make prediction
-    if st.button("Predict Heart Disease"):
-        heart_input = np.array([age, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]).reshape(1, -1)
-        heart_prediction = heart_model.predict(heart_input)[0]
-        result = "Positive" if heart_prediction == 1 else "Negative"
-        st.success(f"The prediction for Heart Disease is: {result}")
+# Heart Disease Prediction Page
+if (selected == 'Heart Disease Prediction'):
+    
+    # page title
+    st.title('Heart Disease Prediction using ML')
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        age = st.text_input('Age')
+        
+    with col2:
+        sex = st.text_input('Sex')
+        
+    with col3:
+        cp = st.text_input('Chest Pain types')
+        
+    with col1:
+        trestbps = st.text_input('Resting Blood Pressure')
+        
+    with col2:
+        chol = st.text_input('Serum Cholestoral in mg/dl')
+        
+    with col3:
+        fbs = st.text_input('Fasting Blood Sugar > 120 mg/dl')
+        
+    with col1:
+        restecg = st.text_input('Resting Electrocardiographic results')
+        
+    with col2:
+        thalach = st.text_input('Maximum Heart Rate achieved')
+        
+    with col3:
+        exang = st.text_input('Exercise Induced Angina')
+        
+    with col1:
+        oldpeak = st.text_input('ST depression induced by exercise')
+        
+    with col2:
+        slope = st.text_input('Slope of the peak exercise ST segment')
+        
+    with col3:
+        ca = st.text_input('Major vessels colored by flourosopy')
+        
+    with col1:
+        thal = st.text_input('thal: 0 = normal; 1 = fixed defect; 2 = reversable defect')
+        
+        
+     
+     
+    # code for Prediction
+    heart_diagnosis = ''
+    
+    # creating a button for Prediction
+    
+    if st.button('Heart Disease Test Result'):
+        heart_prediction = heart_disease_model.predict([[age, sex, cp, trestbps, chol, fbs, restecg,thalach,exang,oldpeak,slope,ca,thal]])                          
+        
+        if (heart_prediction[0] == 1):
+          heart_diagnosis = 'The person is having heart disease'
+        else:
+          heart_diagnosis = 'The person does not have any heart disease'
+        
+    st.success(heart_diagnosis)
+        
+    
+    
 
-# Notes section
-st.sidebar.title("About")
-st.sidebar.info("This app uses machine learning models to predict the likelihood of Diabetes and Heart Diseases based on user input. Ensure accurate data entry for reliable predictions.")
+# Parkinson's Prediction Page
