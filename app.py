@@ -20,9 +20,8 @@ with st.sidebar:
     selected = option_menu('Multiple Disease Prediction System',
                           
                           ['Diabetes Prediction',
-                           'Heart Disease Prediction',
-                           'Parkinsons Prediction'],
-                          icons=['activity','heart','person'],
+                           'Heart Disease Prediction'],
+                          icons=['activity','heart',],
                           default_index=0)
     
     
@@ -90,40 +89,38 @@ if (selected == 'Heart Disease Prediction'):
     with col1:
         age = st.text_input('Age')
         
-    with col2:
-        sex = st.text_input('Sex')
         
-    with col3:
+    with col2:
         cp = st.text_input('Chest Pain types')
         
-    with col1:
+    with col3:
         trestbps = st.text_input('Resting Blood Pressure')
         
-    with col2:
+    with col1:
         chol = st.text_input('Serum Cholestoral in mg/dl')
         
-    with col3:
+    with col2:
         fbs = st.text_input('Fasting Blood Sugar > 120 mg/dl')
         
-    with col1:
+    with col3:
         restecg = st.text_input('Resting Electrocardiographic results')
         
-    with col2:
+    with col1:
         thalach = st.text_input('Maximum Heart Rate achieved')
         
-    with col3:
+    with col2:
         exang = st.text_input('Exercise Induced Angina')
         
-    with col1:
+    with col3:
         oldpeak = st.text_input('ST depression induced by exercise')
         
-    with col2:
+    with col1:
         slope = st.text_input('Slope of the peak exercise ST segment')
         
-    with col3:
+    with col2:
         ca = st.text_input('Major vessels colored by flourosopy')
         
-    with col1:
+    with col3:
         thal = st.text_input('thal: 0 = normal; 1 = fixed defect; 2 = reversable defect')
         
         
